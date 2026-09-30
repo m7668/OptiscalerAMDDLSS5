@@ -1,16 +1,9 @@
 **中文** | [English](README.en.md)
 
-# OptiScaler AMD pre-SR — 1.9.6.3
 
 在 **OptiScaler** 上接入 **AMD 神经网络渲染**（DLSS5 on AMD），让 **纯 DLSS / XeSS 游戏** 在 AMD 显卡上跑神经网络降噪；超分辨率仍然由 **FFX/FSR** 完成。
 
-本项目 fork 自 **Matheus** 及上游社区。在上游成熟方案的基础上持续深度研发与维护。
-
-**项目主页：[github.com/TheAutomatic/dlss-5-amd-project](https://github.com/TheAutomatic/dlss-5-amd-project)**
-
-## 基础支持项目
-
-本版本包综合整合了以下主要上游项目：
+本项目 fork 整合了以下主要上游项目：
 
 - [OptiScaler](https://github.com/optiscaler/OptiScaler)：通用超分辨率与帧生成代理框架，并提供 ASI 插件加载能力；
 - [TheAutomatic/dlss-5-amd-project](https://github.com/TheAutomatic/dlss-5-amd-project)：AMD Pre-SR / DLSSNR 整合基底；
