@@ -1,14 +1,5 @@
 [中文](README.md) | **English**
 
-# OptiScaler AMD pre-SR — 1.9.6.3
-
-Connects **AMD Neural Rendering** (DLSS5 on AMD) into **OptiScaler**, enabling **pure DLSS / XeSS games** to run neural denoising on AMD GPUs; upscaling is handled by **FFX/FSR**.
-
-This project is forked from **Matheus** and upstream community projects, maintaining and evolving the codebase with ongoing deep optimizations.
-
-**Project Homepage: [github.com/TheAutomatic/dlss-5-amd-project](https://github.com/TheAutomatic/dlss-5-amd-project)**
-
-## Foundation Projects
 
 This release package combines work from these primary upstream projects:
 
@@ -18,41 +9,7 @@ This release package combines work from these primary upstream projects:
 
 This version supports DLSSNR through the Daniel 0.5.0 backend. The bundled `OptiScaler.ini` still defaults to `NrBackend=lmxxf` with the NR pass disabled; switch backends and enable it as needed. XeMFG (XEFMG) integration uses the XeFGUnlock ASI plugin through OptiScaler. Daniel's installer, runtime and weights, and the XeFGUnlock ASI plugin are not included; obtain them from their upstream sources and follow their respective licenses.
 
-## 1.9.6.3 fix
 
-- Fixes per-frame `isolated neural command list` messages rapidly growing `amd_bridge.log` on the Daniel backend. This routine event is now logged once per process.
-- Rendering, NR settings and command-list submission are unchanged. Existing 1.9.6.2 users can replace only the host DLL, keeping their runtime, weights and configuration.
-
-## 1.9.6.2 fix
-
-- lmxxf adaptive ViT reuse: performance defaults `16 / 1 / 50 / 1` (period/global/local/image), F8 enabled. Conservative settings: `4 / 0.22 / 1 / 0.35`. Longer reuse can delay detail updates; existing explicit ini settings are retained when keeping the ini.
-
-- Accepts both verified Daniel 0.5.0 `version.dll` variants in the installer and runtime host, retaining strict file-hash checks.
-- Validated with no-GPU regression tests; no new game testing.
-
-## What's new in 1.9.6.1
-
-- Adds the lmxxf `DLSS5_SKIP_BLOCKS` ini/menu setting; the default remains `42,43,46`. Changes apply on the next network rebuild.
-- Includes HIP `.inc` fragments in sync review, module recipe fingerprints and release freshness checks.
-- Retries release uploads and verifies SHA-256 without deleting an existing asset before a transfer succeeds.
-
-## What's new in 1.9.6 (first stable release since 1.8.6)
-
-> Bug reports with `.log` files are welcome.
-
-**danielblnc backend update**
-- Supports **danielblnc 0.3.0–0.5.0** (file layout and startup isolation; please download the daniel weights/files yourself).
-
-**New lmxxf backend** (weight files: [lmxxf upstream](https://github.com/lmxxf/dlss5-on-amd-9070xt-porting) or [cloud drive](https://gofile.io/d/wRln0Pue))
-- **Upstream alignment**: currently synced to **0.35**.
-- **9060-series GPU support**: more real-hardware testing still needed.
-- **Performance**: major performance gains; exact percentage not measured yet.
-- **Fixes blown highlights and flicker in some games** (e.g. Wo Long 2 demo): uses game exposure first.
-- **Colour strength**: 0–1 keeps the game colour; above 1 mixes toward network colour.
-- **NR%**: new three-level adjustable NR resolution.
-- **Auto exposure**: when the game does not transmit exposure in-frame, **Auto exposure** is on by default; turn it off to use **Exposure scale**.
-- **High resolution**: now accepts color input above native 1080p (4K/2K with FSR Balanced or higher no longer errors).
-- **Better game compatibility & bug fixes**: some compatibility fixes unverified — thanks [@OUCO86](https://github.com/OUCO86)
 
 **In-game menu**
 - Menu layout cleanup with lmxxf / daniel feature toggles
@@ -77,21 +34,7 @@ Cross-layer keys use the same `DLSS5_*` names as upstream. **Ins labels are neve
 
 ---
 
-## Table of Contents
-- [📢 1.9.0 Changelog](#-190-changelog)
-- [1. Standing on the Shoulders of Giants](#1-standing-on-the-shoulders-of-giants)
-- [2. Installation Guide](#2-installation-guide)
-  - └─► [Optional: 3x+ Frame Generation](#optional-3x-frame-generation)
-- [3. Dual-Backend Architecture & Benchmarks](#3-dual-backend-architecture--benchmarks)
-- [4. In-Game Settings & Controls](#4-in-game-settings--controls)
-- [5. Troubleshooting, Logs & Uninstallation](#5-troubleshooting-logs--uninstallation)
-- [6. Attributions & Licenses](#6-attributions--licenses)
 
----
-
-## 📢 1.9.0 Changelog
-
-Version 1.9.0 is a **major architectural milestone upgrade**. We officially introduce the open-source [**`lmxxf` HIP Neural Rendering backend**](https://github.com/lmxxf/dlss5-on-amd-9070xt-porting) and resolve critical multi-queue and command list split compatibility hurdles in modern Unreal Engine 5 titles.
 
 ### 🚀 Key Highlights
 
@@ -122,22 +65,8 @@ Version 1.9.0 is a **major architectural milestone upgrade**. We officially intr
 
 ---
 
-## 1. Standing on the Shoulders of Giants
 
-This project is built upon the collective achievements of pioneering developers in the open-source graphics community:
-
-| Upstream / Pioneer | Their Contribution | What This Project Added |
-|---|---|---|
-| **[OptiScaler](https://github.com/optiscaler/OptiScaler)** | Universal upscaling proxy framework (DLSS / FFX / XeSS) | Serves as the host and injection layer, providing hooking and GUI controls |
-| **[Dagherbou / OptiScaler_DLSSNR](https://github.com/Dagherbou/OptiScaler_DLSSNR)** → **[wilsjo2 / PreSR-Multipass](https://github.com/wilsjo2/OptiScaler-DLSSNR-PreSR-Multipass)** | First integrated DLSS-NR into OptiScaler; architected Pre-SR Multi-Pass pipeline | Inherits their OptiScaler codebase foundation and Pre-SR dispatch structure |
-| **[Matheus / dlss-5-amd-project](https://github.com/MatheusGViana/dlss-5-amd-project)** | Bridged Pre-SR to AMD runtime: DLSS Input → AMD NR → FFX | Pioneered **Multi-slot scheduling**, eliminating **8.7 ms/frame** of idle GPU stalls; adapted 0.3.1; restored D3D12 state freeze/restore; enhanced XBOX PC compatibility. **Bridge overhead measured at just 0.01–0.03 ms** |
-| **[danielblnc / DLSS-NR-on-AMD](https://github.com/danielblnc/DLSS-NR-on-AMD)** | Core AMD Neural Rendering runtime (0.3.0–0.5.0) | Calls standard runtime without core modifications; adds D3D12 state protection for 0.3.1+ 1-pixel draw wait |
-| **[lmxxf / dlss5-on-amd-9070xt-porting](https://github.com/lmxxf/dlss5-on-amd-9070xt-porting)** | Reversed 71-block network ported to open-source AMD HIP kernels | **Integrated into OptiScaler universal proxy framework to support more DLSS / XeSS games**; implemented same-frame queue execution; developed standardized C-ABI standalone runtime (`LmxxfNrRuntime`); added real-time detail/color tuning sliders |
-| **[RenoDX / clshortfuse](https://github.com/clshortfuse/renodx)** | Open-source HDR / Color grading addon | Source of color composition algorithms in `dlssnr.hlsl` |
-
----
-
-## 2. Installation Guide
+##  Installation Guide
 
 <details>
 <summary><strong>📦 Click to expand: Package Contents</strong></summary>
@@ -310,7 +239,7 @@ This project introduced **Multi-Slot Scheduling**: allocating independent parall
 
 ---
 
-## 4. In-Game Settings & Controls
+##  In-Game Settings & Controls
 
 1. Launch the game and enter 3D rendering.
 2. Press **Insert (Ins)** to open the OptiScaler overlay menu.
@@ -338,7 +267,7 @@ Advanced process env (no Ins toggle): `DLSSNR_NO_REG`, `DLSSNR_CHAIN`, `DLSSNR_N
 
 ---
 
-## 5. Troubleshooting, Logs & Uninstallation
+##  Troubleshooting, Logs & Uninstallation
 
 ### 1. Uninstallation
 1. Open the **game directory**;
@@ -354,43 +283,10 @@ Inspect the following logs in the game directory (or `_storage_` for Microsoft S
 - `amd_presr.log`: Pre-SR dispatch log;
 - `dlssnr_on_amd.log`: danielblnc runtime log.
 
-> **Where are lmxxf logs?**  
-> Unlike `danielblnc` which writes to a separate `dlssnr_on_amd.log`, the `lmxxf` backend and its C-ABI runtime pipe all initialization, telemetry, and error messages directly into **`OptiScaler.log`** (and `amd_bridge.log`). There is no need to search for separate log files.
-
-#### `lmxxf` Backend Diagnostics
-- **Status displays `waiting` or NR does not activate**:
-  - Open `OptiScaler.log` and search for `Lmxxf`;
-  - Verify that `LmxxfNrRuntime.dll` exists in the game directory;
-  - Verify that `lmxxf-modules\` exists and contains `SHA256SUMS` along with all 71 `.hsaco` compute modules;
-  - Verify that `shaders\` exists and contains `native_codec_encode.hlsl`.
-- **Missing weights error**:
-  - Ensure the `native-game-tiled-assets\` directory is present in the game directory.
-- **Resolution exceeding limits**:
-  - Current lmxxf model slices support render resolutions **≤ 1080p**. If playing at 4K, select FSR Performance (1080p render) or Ultra Performance (720p render); 4K Quality (1440p render) exceeds the model slice limits.
-
-#### `danielblnc` Backend Diagnostics
-- **Status does not show `AMD NR runtime: 0.3.x`**:
-  - Ensure `dlssnr_amd_pass1.dll` (and pass2/pass3) and `dlssnr_on_amd_weights.bin` exist;
-  - Ensure there is no conflicting `version.dll` left in the game directory;
-  - Check `dlssnr_on_amd.log` for runtime initialization errors.
-
-#### Microsoft Store / XBOX PC Notes
-Due to Windows filesystem virtualization, certain Store/Game Pass titles create a **`_storage_`** folder next to the executable. Check this folder if logs or outputs do not appear in the primary game directory.
-
-### 3. Issue Reporting Format
-When reporting issues, please include:
-1. Proxy DLL name used (e.g. `dxgi.dll`);
-2. Selected backend (`lmxxf` or `daniel`);
-3. GPU model, OS version, and AMD driver version;
-4. Game title, output resolution, and FSR mode;
-5. Relevant `.log` files listed above.
-
-### 4. Known Issues
-- **UE5 (Palworld, Neverness to Everness, and others)**: Older builds rejected every query and left game command lists created before the first swapchain unwrapped, causing the `lmxxf` backend to return original color. The current source permits completed queries and wraps lists created by the game executable earlier. D3D12 tests pass; neural rendering and image stability still need validation in the games.
 
 ---
 
-## 6. Attributions & Licenses
+##  Attributions & Licenses
 
 Codebase heritage (top to bottom):  
 [OptiScaler](https://github.com/optiscaler/OptiScaler) → [Dagherbou](https://github.com/Dagherbou/OptiScaler_DLSSNR) → [wilsjo2](https://github.com/wilsjo2/OptiScaler-DLSSNR-PreSR-Multipass) → [Matheus](https://github.com/MatheusGViana/dlss-5-amd-project) → [**This Repository (TheAutomatic / dlss-5-amd-project)**](https://github.com/TheAutomatic/dlss-5-amd-project).
@@ -406,8 +302,3 @@ Codebase heritage (top to bottom):
 
 This distribution contains no NVIDIA proprietary binaries, danielblnc installer tools, or unauthorized model weights. Please respect all upstream licenses.
 
-## Known issues (1.9.2-alpha)
-
-- **`lmxxf` backend: Pre-SR neural rendering above ~1080p internal resolution costs noticeably more per frame.** Larger Color (e.g. 4K Quality ~2258×1271) adds same-frame work; the older per-frame chain-rebuild hitch is fixed. Prefer internal render at or below roughly: **4K Performance**, **1440p Balanced**, or **1080p native**. `DLSS5_FIT_LARGE` defaults to on (matching upstream package flags; set `false` explicitly to opt out). Without FitLarge, width must be at most 2560, height at most 1080, and the pixel count within 1920×1080 (for example 2024×848). 2560×1080 is rejected. With FitLarge, larger Color is fitted onto the 1080 network.
-- **Cyberpunk 2077 neon turning brown:** At Colour strength 1, Pre-SR feeds the network's hue into the game's later grade and green neon can turn brown. Set Colour strength to 0 to change brightness only. This is not selected by the game's name.
-- **PDL:** Chained launch is on by default. If the driver has no `hipExtModuleLaunchKernel`, set `DLSS5_HIP_PDL=false` and restart.
